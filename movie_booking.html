@@ -1,0 +1,1274 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CINEMAX — Book Tickets</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0a0f;
+        --surface: #13131a;
+        --surface2: #1c1c28;
+        --border: #2a2a3d;
+        --gold: #f0b429;
+        --gold-dim: #a07720;
+        --red: #e53e3e;
+        --text: #f0f0f5;
+        --muted: #7878a0;
+        --seat-avail: #2a2a3d;
+        --seat-taken: #1c1c28;
+        --radius: 12px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.35;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 40px;
+        height: 64px;
+        background: rgba(10, 10, 15, 0.85);
+        backdrop-filter: blur(18px);
+        border-bottom: 1px solid var(--border);
+      }
+      .logo {
+        font-family: "Bebas Neue", cursive;
+        font-size: 28px;
+        letter-spacing: 4px;
+        color: var(--gold);
+      }
+      .logo span {
+        color: var(--text);
+      }
+      nav {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+        transition: all 0.2s;
+      }
+      nav a:hover {
+        color: var(--text);
+      }
+      nav a.nav-cta {
+        background: var(--gold);
+        color: #000;
+        font-weight: 700;
+      }
+      nav a.nav-cta:hover {
+        background: #f7c94b;
+      }
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 60px 40px 0;
+        min-height: 520px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
+      .hero-bg {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, #1a0a2e 0%, #0a0a0f 60%);
+      }
+      .hero-accent {
+        position: absolute;
+        top: -120px;
+        right: -80px;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(240, 180, 41, 0.12) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .section-label {
+        font-size: 11px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 12px;
+        position: relative;
+      }
+      .hero h1 {
+        font-family: "Bebas Neue", cursive;
+        font-size: clamp(42px, 7vw, 80px);
+        line-height: 0.95;
+        letter-spacing: 2px;
+        position: relative;
+        max-width: 700px;
+        margin-bottom: 16px;
+      }
+      .hero p {
+        color: var(--muted);
+        max-width: 480px;
+        line-height: 1.7;
+        font-size: 15px;
+        position: relative;
+        margin-bottom: 40px;
+      }
+      .movies-section {
+        padding: 60px 40px;
+        position: relative;
+      }
+      .movies-section h2 {
+        font-family: "Bebas Neue", cursive;
+        font-size: 36px;
+        letter-spacing: 2px;
+        margin-bottom: 32px;
+      }
+      .movies-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 24px;
+      }
+      .movie-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        cursor: pointer;
+        transition:
+          transform 0.3s ease,
+          border-color 0.3s ease,
+          box-shadow 0.3s ease;
+        position: relative;
+      }
+      .movie-card:hover {
+        transform: translateY(-6px);
+        border-color: var(--gold-dim);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      }
+      .movie-poster {
+        width: 100%;
+        aspect-ratio: 2/3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 80px;
+        background: var(--surface2);
+        overflow: hidden;
+      }
+      .movie-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: var(--gold);
+        color: #000;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 3px 8px;
+        border-radius: 4px;
+      }
+      .movie-info {
+        padding: 16px;
+      }
+      .movie-title {
+        font-weight: 600;
+        font-size: 15px;
+        margin-bottom: 6px;
+      }
+      .movie-meta {
+        display: flex;
+        gap: 10px;
+        font-size: 12px;
+        color: var(--muted);
+        flex-wrap: wrap;
+      }
+      .movie-rating {
+        color: var(--gold);
+        font-weight: 600;
+      }
+      .movie-genre {
+        display: inline-block;
+        margin-top: 8px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        color: var(--muted);
+      }
+      #booking-panel {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(6px);
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      #booking-panel.open {
+        display: flex;
+      }
+      .booking-modal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        width: 100%;
+        max-width: 860px;
+        max-height: 92vh;
+        overflow-y: auto;
+        padding: 40px;
+        position: relative;
+        animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      @keyframes slideUp {
+        from {
+          transform: translateY(60px);
+          opacity: 0;
+        }
+        to {
+          transform: none;
+          opacity: 1;
+        }
+      }
+      .close-btn {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+      .close-btn:hover {
+        background: var(--red);
+        color: #fff;
+        border-color: var(--red);
+      }
+      .booking-header {
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+        margin-bottom: 32px;
+      }
+      .booking-poster {
+        width: 80px;
+        height: 110px;
+        background: var(--surface2);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+        font-size: 56px;
+      }
+      .booking-title {
+        font-family: "Bebas Neue", cursive;
+        font-size: 32px;
+        letter-spacing: 1px;
+      }
+      .booking-meta {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 6px;
+        line-height: 1.8;
+      }
+      .step-label {
+        font-size: 11px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 14px;
+      }
+      .divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 28px 0;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .chip {
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text);
+        font-size: 13px;
+        padding: 8px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: "DM Sans", sans-serif;
+      }
+      .chip:hover {
+        border-color: var(--gold-dim);
+      }
+      .chip.active {
+        background: var(--gold);
+        color: #000;
+        border-color: var(--gold);
+        font-weight: 600;
+      }
+      .chip:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .screen-label {
+        text-align: center;
+        margin-bottom: 28px;
+        font-size: 12px;
+        letter-spacing: 3px;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .screen-bar {
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--gold),
+          transparent
+        );
+        border-radius: 4px;
+        margin-bottom: 6px;
+        opacity: 0.5;
+      }
+      .seat-map {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+      .seat-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .row-label {
+        width: 20px;
+        text-align: center;
+        font-size: 11px;
+        color: var(--muted);
+        flex-shrink: 0;
+      }
+      .seat {
+        width: 32px;
+        height: 28px;
+        border-radius: 6px 6px 4px 4px;
+        border: 1px solid #3a3a55;
+        background: var(--seat-avail);
+        cursor: pointer;
+        transition: all 0.15s;
+        font-size: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: transparent;
+        position: relative;
+      }
+      .seat:hover:not(.taken):not(.selected):not(.just-booked) {
+        background: rgba(240, 180, 41, 0.25);
+        border-color: var(--gold-dim);
+      }
+      .seat.selected {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: #000;
+        font-weight: 700;
+      }
+      .seat.taken {
+        background: var(--seat-taken);
+        border-color: #1a1a2a;
+        cursor: not-allowed;
+      }
+      .seat.taken::after {
+        content: "✕";
+        color: #333;
+        font-size: 10px;
+      }
+      .seat.just-booked {
+        background: #0d4f4f;
+        border-color: #1a8080;
+        cursor: not-allowed;
+      }
+      .seat.just-booked::after {
+        content: "✓";
+        color: #2dd4bf;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .seat-gap {
+        width: 16px;
+      }
+      .legend {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .legend-dot {
+        width: 16px;
+        height: 14px;
+        border-radius: 4px 4px 2px 2px;
+        border: 1px solid;
+        flex-shrink: 0;
+      }
+      .legend-dot.avail {
+        background: var(--seat-avail);
+        border-color: #3a3a55;
+      }
+      .legend-dot.sel {
+        background: var(--gold);
+        border-color: var(--gold);
+      }
+      .legend-dot.tak {
+        background: var(--seat-taken);
+        border-color: #1a1a2a;
+      }
+      .legend-dot.booked {
+        background: #0d4f4f;
+        border-color: #1a8080;
+      }
+      .summary-box {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        padding: 5px 0;
+      }
+      .summary-row.total {
+        font-weight: 600;
+        font-size: 16px;
+        border-top: 1px solid var(--border);
+        padding-top: 12px;
+        margin-top: 8px;
+        color: var(--gold);
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .form-field label {
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .form-field input,
+      .form-field select {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        outline: none;
+        transition: border-color 0.2s;
+        cursor: pointer;
+      }
+      .form-field input:focus,
+      .form-field select:focus {
+        border-color: var(--gold);
+      }
+      .form-field input::placeholder {
+        color: #404060;
+      }
+      .form-field select option {
+        background: var(--surface);
+        color: var(--text);
+      }
+      .form-field input[readonly] {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .btn-primary {
+        background: var(--gold);
+        color: #000;
+        font-family: "DM Sans", sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.5px;
+        padding: 16px 40px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.2s;
+      }
+      .btn-primary:hover {
+        background: #f7c94b;
+        transform: translateY(-1px);
+        box-shadow: 0 10px 30px rgba(240, 180, 41, 0.3);
+      }
+      .btn-primary:active {
+        transform: none;
+      }
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+      #success-screen {
+        display: none;
+        text-align: center;
+        padding: 40px 20px;
+        animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      #success-screen.open {
+        display: block;
+      }
+      .ticket-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        display: block;
+      }
+      .booking-id {
+        display: inline-block;
+        background: var(--surface2);
+        border: 2px dashed var(--gold);
+        color: var(--gold);
+        font-family: "Bebas Neue", cursive;
+        font-size: 28px;
+        letter-spacing: 6px;
+        padding: 12px 28px;
+        border-radius: 10px;
+        margin: 20px 0;
+      }
+      .ticket-details {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        text-align: left;
+        max-width: 400px;
+        margin: 20px auto;
+      }
+      .ticket-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        padding: 6px 0;
+      }
+      .ticket-row span:first-child {
+        color: var(--muted);
+      }
+      .sheets-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        margin-top: 12px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--muted);
+      }
+      .sheets-status.saving {
+        color: #60a5fa;
+        border-color: #60a5fa44;
+      }
+      .sheets-status.saved {
+        color: #34d399;
+        border-color: #34d39944;
+      }
+      .sheets-status.failed {
+        color: var(--red);
+        border-color: #e53e3e44;
+      }
+      .sheets-status.skipped {
+        color: var(--muted);
+        border-color: var(--border);
+      }
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      .dot.pulse {
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+      /* Seat loading overlay */
+      .seat-loading {
+        text-align: center;
+        padding: 32px 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .seat-loading span {
+        display: inline-block;
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+      .toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 14px 24px;
+        border-radius: 10px;
+        font-size: 14px;
+        z-index: 999;
+        transition: transform 0.3s ease;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      }
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+      .toast.error {
+        border-color: var(--red);
+        color: var(--red);
+      }
+      /* Login required notice */
+      .login-notice {
+        background: linear-gradient(135deg, #1a1a0a, #0a0a0f);
+        border: 1px solid var(--gold-dim);
+        border-radius: var(--radius);
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 13px;
+        color: #c8a84b;
+      }
+      .login-notice a {
+        color: var(--gold);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .login-notice a:hover {
+        text-decoration: underline;
+      }
+      @media (max-width: 600px) {
+        header {
+          padding: 0 16px;
+        }
+        .hero,
+        .movies-section {
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+        .booking-modal {
+          padding: 24px 16px;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .seat {
+          width: 26px;
+          height: 22px;
+        }
+        nav a span {
+          display: none;
+        }
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">CINE<span>MAX</span></div>
+      <nav id="nav-bar">
+        <a href="movie_booking.html">Now Showing</a>
+        <a href="my_bookings.html">My Bookings</a>
+        <span id="nav-user-area"></span>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-accent"></div>
+      <div class="section-label">🎬 Now Showing in Cinemas</div>
+      <h1>Book Your Perfect Cinema Experience</h1>
+      <p>
+        Choose your movie, pick your seats, and enjoy the show. Fast, easy, and
+        secure ticket booking.
+      </p>
+    </section>
+
+    <section class="movies-section">
+      <h2>Select a Movie</h2>
+      <div class="movies-grid" id="movies-grid"></div>
+    </section>
+
+    <div id="booking-panel">
+      <div class="booking-modal">
+        <button class="close-btn" onclick="closeBooking()">✕</button>
+        <div id="booking-form-content"></div>
+        <div id="success-screen"></div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      // ════════════════════════════════════════════════════════
+      //  CONFIG — paste your Apps Script Web App URL here
+      // ════════════════════════════════════════════════════════
+      const APPS_SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbzV6hUnG90p8hb72Q4p8V-pVVetNHF2Ok55C_WTyYr25m4yobszxPtIw7EnoSFOUYuz1A/exec";
+
+      // ── Session (stored in sessionStorage — lasts until tab closed) ──
+      const session = JSON.parse(
+        sessionStorage.getItem("cinemaUser") || "null",
+      );
+
+      // ── Render nav based on login state ──
+      const navUserArea = document.getElementById("nav-user-area");
+      if (session) {
+        navUserArea.innerHTML = `<span style="color:var(--muted);font-size:13px;margin:0 10px">👤 ${session.name || session.email}</span><a href="#" onclick="logoutUser()" style="color:var(--red)">Logout</a>`;
+      } else {
+        navUserArea.innerHTML = `<a href="login.html" class="nav-cta">Login / Sign Up</a>`;
+      }
+
+      function logoutUser() {
+        sessionStorage.removeItem("cinemaUser");
+        location.reload();
+      }
+
+      // ── Movie data ──
+      const MOVIES = [
+        {
+          id: 1,
+          emoji:
+            '<img src="hail_mary.jpg" alt="Hail Mary" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">',
+          title: "Hail Mary",
+          genre: "Sci-Fi",
+          rating: "8.7",
+          duration: "2h 46m",
+          price: 220,
+          badge: "IMAX",
+          desc: "A crew ventures beyond the galaxy edge in search of humanity's new home. This thrilling sci-fi adventure explores the depths of space and the resilience of the human spirit.",
+        },
+        {
+          id: 2,
+          emoji:
+            '<img src="dhurandhar_2.jpg" alt="Dhurandhar 2" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">',
+          title: "Dhurandhar 2",
+          genre: "Action",
+          rating: "9.4",
+          duration: "3h 49m",
+          price: 180,
+          badge: null,
+          desc: "A movie of a spy who infiltrates Pakistan and takes out enemy agents. Packed with intense action sequences and high-stakes espionage.",
+        },
+      ];
+
+      // ── Date / Time helpers ──
+      function generateDates() {
+        const dates = [],
+          today = new Date();
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const months = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        for (let i = 0; i < 5; i++) {
+          const d = new Date(today);
+          d.setDate(today.getDate() + i);
+          dates.push(
+            `${i === 0 ? "Today" : days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`,
+          );
+        }
+        return dates;
+      }
+
+      function generateTimes(dateIndex = 0) {
+        const all = ["10:00 AM", "1:30 PM", "4:15 PM", "7:00 PM", "10:30 PM"];
+        if (dateIndex > 0) return all;
+        const now = new Date(),
+          cur = now.getHours() * 60 + now.getMinutes();
+        const toMins = (t) => {
+          const [tm, p] = t.split(" ");
+          let [h, m] = tm.split(":").map(Number);
+          if (p === "PM" && h !== 12) h += 12;
+          if (p === "AM" && h === 12) h = 0;
+          return h * 60 + m;
+        };
+        return all.filter((t) => toMins(t) > cur);
+      }
+
+      const DATES = generateDates();
+      const ROWS = ["A", "B", "C", "D", "E", "F", "G", "H"];
+      const SEATS_PER_ROW = 12;
+
+      // ── Global booked-seats map loaded from Sheets ──
+      // bookedSeatsMap["movieId-dateIdx-timeIdx"] = Set of seat IDs
+      let bookedSeatsMap = {};
+      let seatsLoaded = false;
+
+      // Seats booked by this user in the current session (for teal highlight)
+      const sessionBooked = {};
+
+      async function loadBookedSeats() {
+        if (APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
+          seatsLoaded = true;
+          return;
+        }
+        try {
+          const res = await fetch(`${APPS_SCRIPT_URL}?action=getBookedSeats`);
+          const json = await res.json();
+          if (json.status === "success") {
+            bookedSeatsMap = {};
+            Object.entries(json.data).forEach(([key, seats]) => {
+              bookedSeatsMap[key] = new Set(seats);
+            });
+          }
+        } catch (e) {
+          console.warn("Could not load booked seats:", e);
+        }
+        seatsLoaded = true;
+      }
+
+      function isTaken(id, movieId, dateIdx, timeIdx) {
+        const key = `${movieId}-${dateIdx}-${timeIdx}`;
+        return bookedSeatsMap[key]?.has(id) && !sessionBooked[key]?.has(id);
+      }
+
+      function isSessionBooked(id, movieId, dateIdx, timeIdx) {
+        const key = `${movieId}-${dateIdx}-${timeIdx}`;
+        return !!sessionBooked[key]?.has(id);
+      }
+
+      // ── State ──
+      let state = { movie: null, date: null, time: null, seats: [] };
+
+      // ── Render movie cards ──
+      const grid = document.getElementById("movies-grid");
+      MOVIES.forEach((m) => {
+        const card = document.createElement("div");
+        card.className = "movie-card";
+        card.innerHTML = `
+          ${m.badge ? `<div class="movie-badge">${m.badge}</div>` : ""}
+          <div class="movie-poster">${m.emoji}</div>
+          <div class="movie-info">
+            <div class="movie-title">${m.title}</div>
+            <div class="movie-meta"><span class="movie-rating">★ ${m.rating}</span><span>${m.duration}</span><span>₹${m.price}</span></div>
+            <div class="movie-genre">${m.genre}</div>
+          </div>`;
+        card.onclick = () => openBooking(m);
+        grid.appendChild(card);
+      });
+
+      function openBooking(movie) {
+        state.movie = movie;
+        state.date = null;
+        state.time = null;
+        state.seats = [];
+        renderBookingForm();
+        document.getElementById("booking-panel").classList.add("open");
+        document.getElementById("success-screen").classList.remove("open");
+        document.getElementById("success-screen").style.display = "none";
+        document.getElementById("booking-form-content").style.display = "";
+      }
+
+      function closeBooking() {
+        document.getElementById("booking-panel").classList.remove("open");
+      }
+
+      document
+        .getElementById("booking-panel")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeBooking();
+        });
+
+      function renderBookingForm() {
+        const m = state.movie;
+        const currentTimes = generateTimes(state.date);
+        const savedName =
+          document.getElementById("f-name")?.value || session?.name || "";
+        const savedEmail =
+          document.getElementById("f-email")?.value || session?.email || "";
+        const savedPhone =
+          document.getElementById("f-phone")?.value || session?.phone || "";
+
+        document.getElementById("booking-form-content").innerHTML = `
+          ${!session ? `<div class="login-notice">⚠️ You're not logged in. <a href="login.html">Login or create an account</a> to book tickets and track your bookings.</div>` : ""}
+          <div class="booking-header">
+            <div class="booking-poster">${m.emoji}</div>
+            <div>
+              <div class="booking-title">${m.title}</div>
+              <div class="booking-meta">★ ${m.rating} &nbsp;·&nbsp; ${m.duration} &nbsp;·&nbsp; ${m.genre}<br>${m.desc}</div>
+            </div>
+          </div>
+
+          <div class="step-label">Step 1 — Choose Date</div>
+          <div class="chips">
+            ${DATES.map((d, i) => `<button class="chip ${state.date === i ? "active" : ""}" onclick="selectDate(${i})">${d}</button>`).join("")}
+          </div>
+
+          <hr class="divider"/>
+          <div class="step-label">Step 2 — Choose Showtime</div>
+          <div class="chips">
+            ${
+              currentTimes.length
+                ? currentTimes
+                    .map(
+                      (t, i) =>
+                        `<button class="chip ${state.time === i ? "active" : ""}" ${state.date === null ? "disabled" : ""} onclick="selectTime(${i})">${t}</button>`,
+                    )
+                    .join("")
+                : `<p style="color:var(--muted);font-size:13px">No more shows today — pick a future date.</p>`
+            }
+          </div>
+
+          <hr class="divider"/>
+          <div class="step-label">Step 3 — Pick Your Seats</div>
+          ${
+            state.date !== null && state.time !== null
+              ? seatsLoaded
+                ? renderSeatMap(m.id, state.date, state.time)
+                : `<div class="seat-loading"><span>Loading seat availability…</span></div>`
+              : `<p style="color:var(--muted);font-size:14px;margin-bottom:20px">Select a date and showtime first.</p>`
+          }
+
+          <hr class="divider"/>
+          <div class="step-label">Step 4 — Your Details</div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>Full Name</label>
+              <input type="text" id="f-name" placeholder="Rahul Sharma" value="${savedName}" ${session ? "readonly" : ""}/>
+            </div>
+            <div class="form-field">
+              <label>Email</label>
+              <input type="email" id="f-email" placeholder="rahul@email.com" value="${savedEmail}" ${session ? "readonly" : ""}/>
+            </div>
+            <div class="form-field">
+              <label>Phone</label>
+              <input type="tel" id="f-phone" placeholder="+91 98765 43210" value="${savedPhone}" ${session ? "readonly" : ""}/>
+            </div>
+            <div class="form-field">
+              <label>Payment Method</label>
+              <select id="f-pay">
+                <option value="">Select Payment Method</option>
+                <option value="UPI">UPI</option>
+                <option value="Card">Card</option>
+                <option value="Net Banking">Net Banking</option>
+                <option value="Cash">Cash</option>
+              </select>
+            </div>
+          </div>
+
+          ${state.seats.length > 0 ? renderSummary(currentTimes) : ""}
+
+          <button class="btn-primary" onclick="confirmBooking()">
+            ${state.seats.length > 0 ? `Confirm & Pay ₹${state.seats.length * m.price}` : "Select Seats to Continue"}
+          </button>`;
+      }
+
+      function renderSeatMap(movieId, dateIdx, timeIdx) {
+        let html = `<div class="screen-bar"></div><div class="screen-label">SCREEN</div><div class="seat-map">`;
+        ROWS.forEach((r) => {
+          html += `<div class="seat-row"><div class="row-label">${r}</div>`;
+          for (let s = 1; s <= SEATS_PER_ROW; s++) {
+            const id = `${r}${s}`;
+            const taken = isTaken(id, movieId, dateIdx, timeIdx);
+            const justBooked = isSessionBooked(id, movieId, dateIdx, timeIdx);
+            const selected = state.seats.includes(id);
+            let cls = "seat";
+            if (justBooked) cls += " just-booked";
+            else if (taken) cls += " taken";
+            else if (selected) cls += " selected";
+            const clickable = !taken && !justBooked;
+            if (s === 4 || s === 10) html += `<div class="seat-gap"></div>`;
+            html += `<div class="${cls}" ${clickable ? `onclick="toggleSeat('${id}')" title="${id}"` : `title="${justBooked ? "Your booking" : "Booked by another user"}"`}>${selected ? id : ""}</div>`;
+          }
+          html += `</div>`;
+        });
+        html += `</div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot avail"></div> Available</div>
+            <div class="legend-item"><div class="legend-dot sel"></div> Selected (${state.seats.length})</div>
+            <div class="legend-item"><div class="legend-dot tak"></div> Taken</div>
+            <div class="legend-item"><div class="legend-dot booked"></div> Your Booking</div>
+          </div>`;
+        return html;
+      }
+
+      function renderSummary(currentTimes) {
+        const m = state.movie,
+          subtotal = state.seats.length * m.price;
+        const fee = Math.round(subtotal * 0.05),
+          total = subtotal + fee;
+        return `
+          <hr class="divider"/>
+          <div class="step-label">Booking Summary</div>
+          <div class="summary-box">
+            <div class="summary-row"><span>Movie</span><span>${m.title}</span></div>
+            <div class="summary-row"><span>Date & Time</span><span>${DATES[state.date]} · ${currentTimes[state.time]}</span></div>
+            <div class="summary-row"><span>Seats</span><span>${state.seats.join(", ")}</span></div>
+            <div class="summary-row"><span>Ticket Price</span><span>₹${m.price} × ${state.seats.length}</span></div>
+            <div class="summary-row"><span>Convenience Fee</span><span>₹${fee}</span></div>
+            <div class="summary-row total"><span>Total</span><span>₹${total}</span></div>
+          </div>`;
+      }
+
+      function selectDate(i) {
+        state.date = i;
+        state.time = null;
+        state.seats = [];
+        renderBookingForm();
+      }
+      function selectTime(i) {
+        state.time = i;
+        state.seats = [];
+        renderBookingForm();
+      }
+
+      function toggleSeat(id) {
+        if (state.date === null || state.time === null) {
+          showToast("Please select date and time first.", true);
+          return;
+        }
+        const idx = state.seats.indexOf(id);
+        if (idx === -1) {
+          if (state.seats.length >= 8) {
+            showToast("Max 8 seats per booking.", true);
+            return;
+          }
+          state.seats.push(id);
+        } else {
+          state.seats.splice(idx, 1);
+        }
+        renderBookingForm();
+      }
+
+      async function confirmBooking() {
+        const name = document.getElementById("f-name")?.value.trim();
+        const email = document.getElementById("f-email")?.value.trim();
+        const phone = document.getElementById("f-phone")?.value.trim();
+        const pay = document.getElementById("f-pay")?.value;
+
+        if (state.date === null || state.time === null) {
+          showToast("Select a date and showtime.", true);
+          return;
+        }
+        if (state.seats.length === 0) {
+          showToast("Please select at least one seat.", true);
+          return;
+        }
+        if (!name) {
+          showToast("Please enter your name.", true);
+          return;
+        }
+        if (!email || !email.includes("@")) {
+          showToast("Enter a valid email address.", true);
+          return;
+        }
+        if (!phone) {
+          showToast("Please enter your phone number.", true);
+          return;
+        }
+        if (!pay) {
+          showToast("Please select a payment method.", true);
+          return;
+        }
+
+        const m = state.movie;
+        const currentTimes = generateTimes(state.date);
+        const bookedSeats = [...state.seats];
+        const seatKey = `${m.id}-${state.date}-${state.time}`;
+        const bookingId =
+          "CMX" + Math.random().toString(36).substr(2, 6).toUpperCase();
+        const subtotal = bookedSeats.length * m.price;
+        const fee = Math.round(subtotal * 0.05);
+        const total = subtotal + fee;
+
+        // Lock seats in global map immediately (optimistic update)
+        if (!bookedSeatsMap[seatKey]) bookedSeatsMap[seatKey] = new Set();
+        bookedSeats.forEach((s) => bookedSeatsMap[seatKey].add(s));
+
+        // Track as session-booked for teal highlight
+        if (!sessionBooked[seatKey]) sessionBooked[seatKey] = new Set();
+        bookedSeats.forEach((s) => sessionBooked[seatKey].add(s));
+
+        state.seats = [];
+
+        // Show confirmation
+        document.getElementById("booking-form-content").style.display = "none";
+        const ss = document.getElementById("success-screen");
+        ss.style.display = "block";
+        ss.classList.add("open");
+        ss.innerHTML = `
+          <span class="ticket-icon">🎟️</span>
+          <h2 style="font-family:'Bebas Neue',cursive;font-size:36px;letter-spacing:2px">Booking Confirmed!</h2>
+          <p style="color:var(--muted);margin-top:8px">Your tickets have been booked successfully.</p>
+          <div class="booking-id">${bookingId}</div>
+          <div class="ticket-details">
+            <div class="ticket-row"><span>Movie</span><strong>${m.title}</strong></div>
+            <div class="ticket-row"><span>Date</span><strong>${DATES[state.date]}</strong></div>
+            <div class="ticket-row"><span>Time</span><strong>${currentTimes[state.time]}</strong></div>
+            <div class="ticket-row"><span>Seats</span><strong>${bookedSeats.join(", ")}</strong></div>
+            <div class="ticket-row"><span>Name</span><strong>${name}</strong></div>
+            <div class="ticket-row" style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
+              <span>Total Paid</span><strong style="color:var(--gold)">₹${total}</strong>
+            </div>
+          </div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:8px">
+            Confirmation sent to <strong style="color:var(--text)">${email}</strong>
+          </p>
+          <div id="sheets-badge" class="sheets-status saving">
+            <div class="dot pulse"></div>&nbsp;Saving booking…
+          </div>
+          <br/><br/>
+          <button class="btn-primary" style="max-width:280px;margin:0 auto" onclick="closeBooking()">Back to Movies</button>`;
+
+        showToast("🎉 Booking successful!");
+
+        // Save to Sheets
+        try {
+          const res = await fetch(APPS_SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({
+              action: "saveBooking",
+              bookingId,
+              movie: m.title,
+              genre: m.genre,
+              date: DATES[state.date],
+              showtime: currentTimes[state.time],
+              seats: bookedSeats.join(", "),
+              seatCount: bookedSeats.length,
+              seatKey,
+              ticketPrice: m.price,
+              subtotal,
+              convenienceFee: fee,
+              total,
+              name,
+              email,
+              phone,
+              payment: pay,
+            }),
+            mode: "no-cors",
+          });
+          const badge = document.getElementById("sheets-badge");
+          if (badge) {
+            badge.className = "sheets-status saved";
+            badge.innerHTML = `<div class="dot"></div>&nbsp;✓ Booking Successful!`;
+          }
+        } catch (err) {
+          const badge = document.getElementById("sheets-badge");
+          if (badge) {
+            badge.className = "sheets-status failed";
+            badge.innerHTML = `<div class="dot"></div>&nbsp;⚠ Could not save booking`;
+          }
+        }
+      }
+
+      function showToast(msg, isError = false) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.className = "toast" + (isError ? " error" : "");
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 3000);
+      }
+
+      // Load seat availability on page load
+      loadBookedSeats();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CINEMAX — My Account</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0a0f;
+        --surface: #13131a;
+        --surface2: #1c1c28;
+        --border: #2a2a3d;
+        --gold: #f0b429;
+        --gold-dim: #a07720;
+        --red: #e53e3e;
+        --text: #f0f0f5;
+        --muted: #7878a0;
+        --radius: 12px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        min-height: 100vh;
+        padding: 20px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 20px;
+      }
+      .logo {
+        font-family: "Bebas Neue", cursive;
+        font-size: 24px;
+        letter-spacing: 4px;
+        color: var(--gold);
+      }
+      .logo span {
+        color: var(--text);
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .logout-btn {
+        background: var(--red);
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .account-container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .section h2 {
+        font-family: "Bebas Neue", cursive;
+        font-size: 24px;
+        color: var(--gold);
+        margin-bottom: 20px;
+      }
+      .booking-item {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 10px;
+      }
+      .booking-item h3 {
+        font-size: 18px;
+        margin-bottom: 8px;
+      }
+      .booking-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .btn-primary {
+        background: var(--gold);
+        color: #000;
+        font-family: "DM Sans", sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: all 0.2s;
+      }
+      .btn-primary:hover {
+        background: #f7c94b;
+        transform: translateY(-1px);
+      }
+      .no-bookings {
+        text-align: center;
+        color: var(--muted);
+        padding: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">CINE<span>MAX</span></div>
+      <div class="user-info">
+        <span id="user-email">Loading...</span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </header>
+
+    <div class="account-container">
+      <div class="section">
+        <h2>Account Information</h2>
+        <p><strong>Email:</strong> <span id="account-email"></span></p>
+        <p><strong>Member Since:</strong> <span id="member-since"></span></p>
+      </div>
+
+      <div class="section">
+        <h2>My Bookings</h2>
+        <div id="bookings-list">
+          <div class="no-bookings">
+            <p>No bookings found.</p>
+            <p>Book your first movie ticket now!</p>
+            <button class="btn-primary" onclick="window.location.href='movie_booking.html'">Book Tickets</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Check if user is logged in
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      if (!user || !user.loggedIn) {
+        window.location.href = 'login.html';
+      } else {
+        document.getElementById('user-email').textContent = user.email;
+        document.getElementById('account-email').textContent = user.email;
+        document.getElementById('member-since').textContent = new Date().toLocaleDateString();
+        
+        // In a real app, fetch bookings from server/Google Sheets
+        // For demo, show placeholder
+        loadBookings();
+      }
+
+      function logout() {
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+      }
+
+      function loadBookings() {
+        // Placeholder - in real app, fetch from Google Sheets or database
+        const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        const bookingsList = document.getElementById('bookings-list');
+        
+        if (bookings.length === 0) return;
+        
+        bookingsList.innerHTML = bookings.map(booking => `
+          <div class="booking-item">
+            <h3>${booking.movie}</h3>
+            <div class="booking-details">
+              <div><strong>Date:</strong> ${booking.date}</div>
+              <div><strong>Time:</strong> ${booking.time}</div>
+              <div><strong>Seats:</strong> ${booking.seats}</div>
+              <div><strong>Total:</strong> ₹${booking.total}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    </script>
+  </body>
+</html>

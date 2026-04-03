@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CINEMAX — Login / Sign Up</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0a0f;
+        --surface: #13131a;
+        --surface2: #1c1c28;
+        --border: #2a2a3d;
+        --gold: #f0b429;
+        --gold-dim: #a07720;
+        --red: #e53e3e;
+        --text: #f0f0f5;
+        --muted: #7878a0;
+        --radius: 12px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.35;
+      }
+      .container {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 44px 40px;
+        width: 100%;
+        max-width: 420px;
+        position: relative;
+        z-index: 1;
+      }
+      .logo {
+        font-family: "Bebas Neue", cursive;
+        font-size: 34px;
+        letter-spacing: 4px;
+        color: var(--gold);
+        text-align: center;
+        margin-bottom: 6px;
+      }
+      .logo span {
+        color: var(--text);
+      }
+      .tagline {
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 32px;
+      }
+      /* Tabs */
+      .tabs {
+        display: flex;
+        background: var(--surface2);
+        border-radius: 10px;
+        padding: 4px;
+        margin-bottom: 28px;
+      }
+      .tab {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--muted);
+        transition: all 0.2s;
+        border: none;
+        background: none;
+        font-family: "DM Sans", sans-serif;
+      }
+      .tab.active {
+        background: var(--gold);
+        color: #000;
+        font-weight: 700;
+      }
+      .form-section {
+        display: none;
+      }
+      .form-section.active {
+        display: block;
+      }
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+      .form-field label {
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .form-field input {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .form-field input:focus {
+        border-color: var(--gold);
+      }
+      .form-field input::placeholder {
+        color: #404060;
+      }
+      .btn-primary {
+        background: var(--gold);
+        color: #000;
+        font-family: "DM Sans", sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 6px;
+        transition: all 0.2s;
+      }
+      .btn-primary:hover {
+        background: #f7c94b;
+        transform: translateY(-1px);
+      }
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .error-msg {
+        background: #2a0d0d;
+        border: 1px solid var(--red);
+        color: #ff8080;
+        font-size: 13px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        display: none;
+      }
+      .success-msg {
+        background: #0d2a1a;
+        border: 1px solid #34d399;
+        color: #34d399;
+        font-size: 13px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        display: none;
+      }
+      .back-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .back-link a {
+        color: var(--gold);
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .back-link a:hover {
+        text-decoration: underline;
+      }
+      .spinner {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(0, 0, 0, 0.3);
+        border-top-color: #000;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        vertical-align: middle;
+        margin-right: 6px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">CINE<span>MAX</span></div>
+      <p class="tagline">Your cinema, your account</p>
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('login')">Login</button>
+        <button class="tab" onclick="switchTab('register')">Sign Up</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div class="form-section active" id="login-section">
+        <div class="error-msg" id="login-error"></div>
+        <div class="success-msg" id="login-success"></div>
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" id="l-email" placeholder="your@email.com" />
+        </div>
+        <div class="form-field">
+          <label>Password</label>
+          <input type="password" id="l-password" placeholder="Your password" />
+        </div>
+        <button class="btn-primary" id="login-btn" onclick="doLogin()">
+          Login
+        </button>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div class="form-section" id="register-section">
+        <div class="error-msg" id="reg-error"></div>
+        <div class="success-msg" id="reg-success"></div>
+        <div class="form-field">
+          <label>Full Name</label>
+          <input type="text" id="r-name" placeholder="Rahul Sharma" />
+        </div>
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" id="r-email" placeholder="your@email.com" />
+        </div>
+        <div class="form-field">
+          <label>Phone</label>
+          <input type="tel" id="r-phone" placeholder="+91 98765 43210" />
+        </div>
+        <div class="form-field">
+          <label>Password</label>
+          <input
+            type="password"
+            id="r-password"
+            placeholder="Create a password (min 6 chars)"
+          />
+        </div>
+        <button class="btn-primary" id="reg-btn" onclick="doRegister()">
+          Create Account
+        </button>
+      </div>
+
+      <div class="back-link">
+        <a href="movie_booking.html">← Back to Movies</a>
+      </div>
+    </div>
+
+    <script>
+      const APPS_SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbzV6hUnG90p8hb72Q4p8V-pVVetNHF2Ok55C_WTyYr25m4yobszxPtIw7EnoSFOUYuz1A/exec";
+
+      // Redirect if already logged in
+      if (sessionStorage.getItem("cinemaUser")) {
+        window.location.href = "movie_booking.html";
+      }
+
+      function switchTab(tab) {
+        document
+          .querySelectorAll(".tab")
+          .forEach((t, i) =>
+            t.classList.toggle(
+              "active",
+              (i === 0 && tab === "login") || (i === 1 && tab === "register"),
+            ),
+          );
+        document
+          .getElementById("login-section")
+          .classList.toggle("active", tab === "login");
+        document
+          .getElementById("register-section")
+          .classList.toggle("active", tab === "register");
+      }
+
+      function showMsg(id, msg, isError) {
+        const el = document.getElementById(id);
+        el.textContent = msg;
+        el.style.display = "block";
+        setTimeout(() => {
+          el.style.display = "none";
+        }, 5000);
+      }
+
+      async function doLogin() {
+        const email = document.getElementById("l-email").value.trim();
+        const password = document.getElementById("l-password").value;
+        if (!email || !password) {
+          showMsg("login-error", "Please fill in all fields.", true);
+          return;
+        }
+
+        const btn = document.getElementById("login-btn");
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner"></span>Logging in…`;
+
+        try {
+          const res = await fetch(
+            `${APPS_SCRIPT_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+          );
+          const data = await res.json();
+          if (data.status === "success") {
+            sessionStorage.setItem(
+              "cinemaUser",
+              JSON.stringify({
+                email: data.email,
+                name: data.name,
+                phone: data.phone,
+              }),
+            );
+            showMsg(
+              "login-success",
+              `Welcome back, ${data.name || data.email}!`,
+              false,
+            );
+            setTimeout(() => {
+              window.location.href = "movie_booking.html";
+            }, 800);
+          } else {
+            showMsg("login-error", data.message || "Login failed.", true);
+            btn.disabled = false;
+            btn.textContent = "Login";
+          }
+        } catch (e) {
+          showMsg("login-error", "Network error. Please try again.", true);
+          btn.disabled = false;
+          btn.textContent = "Login";
+        }
+      }
+
+      async function doRegister() {
+        const name = document.getElementById("r-name").value.trim();
+        const email = document.getElementById("r-email").value.trim();
+        const phone = document.getElementById("r-phone").value.trim();
+        const password = document.getElementById("r-password").value;
+
+        if (!name || !email || !password) {
+          showMsg("reg-error", "Name, email and password are required.", true);
+          return;
+        }
+        if (password.length < 6) {
+          showMsg("reg-error", "Password must be at least 6 characters.", true);
+          return;
+        }
+        if (!email.includes("@")) {
+          showMsg("reg-error", "Enter a valid email address.", true);
+          return;
+        }
+
+        const btn = document.getElementById("reg-btn");
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner"></span>Creating account…`;
+
+        try {
+          const res = await fetch(APPS_SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({
+              action: "register",
+              name,
+              email,
+              phone,
+              password,
+            }),
+          });
+          const data = await res.json();
+          if (data.status === "success") {
+            sessionStorage.setItem(
+              "cinemaUser",
+              JSON.stringify({ email: data.email, name: data.name, phone }),
+            );
+            showMsg("reg-success", "Account created! Redirecting…", false);
+            setTimeout(() => {
+              window.location.href = "movie_booking.html";
+            }, 1000);
+          } else {
+            showMsg("reg-error", data.message || "Registration failed.", true);
+            btn.disabled = false;
+            btn.textContent = "Create Account";
+          }
+        } catch (e) {
+          showMsg("reg-error", "Network error. Please try again.", true);
+          btn.disabled = false;
+          btn.textContent = "Create Account";
+        }
+      }
+
+      // Allow Enter key to submit
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        if (
+          document.getElementById("login-section").classList.contains("active")
+        )
+          doLogin();
+        else doRegister();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CINEMAX — My Bookings</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0a0f;
+        --surface: #13131a;
+        --surface2: #1c1c28;
+        --border: #2a2a3d;
+        --gold: #f0b429;
+        --gold-dim: #a07720;
+        --red: #e53e3e;
+        --text: #f0f0f5;
+        --muted: #7878a0;
+        --radius: 12px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.35;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 40px;
+        height: 64px;
+        background: rgba(10, 10, 15, 0.85);
+        backdrop-filter: blur(18px);
+        border-bottom: 1px solid var(--border);
+      }
+      .logo {
+        font-family: "Bebas Neue", cursive;
+        font-size: 28px;
+        letter-spacing: 4px;
+        color: var(--gold);
+      }
+      .logo span {
+        color: var(--text);
+      }
+      nav {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 6px;
+        transition: all 0.2s;
+      }
+      nav a:hover {
+        color: var(--text);
+      }
+      nav a.active {
+        color: var(--gold);
+      }
+      .main {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 48px 24px;
+        position: relative;
+        z-index: 1;
+      }
+      .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 32px;
+      }
+      .page-header h1 {
+        font-family: "Bebas Neue", cursive;
+        font-size: 42px;
+        letter-spacing: 2px;
+      }
+      .user-chip {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 13px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .user-chip strong {
+        color: var(--text);
+      }
+      /* Loading state */
+      .loading-box {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--muted);
+      }
+      .loader {
+        width: 36px;
+        height: 36px;
+        border: 3px solid var(--border);
+        border-top-color: var(--gold);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 16px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      /* Empty state */
+      .empty-box {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--muted);
+      }
+      .empty-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+        display: block;
+      }
+      .empty-box h3 {
+        font-family: "Bebas Neue", cursive;
+        font-size: 28px;
+        letter-spacing: 1px;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+      .empty-box p {
+        max-width: 320px;
+        margin: 0 auto 24px;
+        line-height: 1.6;
+      }
+      /* Booking cards */
+      .bookings-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .booking-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      .booking-card:hover {
+        border-color: var(--gold-dim);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      }
+      .card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px 0;
+      }
+      .card-movie {
+        font-family: "Bebas Neue", cursive;
+        font-size: 24px;
+        letter-spacing: 1px;
+      }
+      .card-id {
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: var(--gold);
+        background: rgba(240, 180, 41, 0.08);
+        border: 1px solid rgba(240, 180, 41, 0.2);
+        border-radius: 6px;
+        padding: 3px 10px;
+      }
+      .card-body {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+        padding: 16px 0 0;
+      }
+      .card-field {
+        padding: 10px 24px;
+        border-top: 1px solid var(--border);
+      }
+      .card-field:not(:last-child):not(:nth-child(3n)) {
+        border-right: 1px solid var(--border);
+      }
+      .card-field label {
+        font-size: 10px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 4px;
+      }
+      .card-field span {
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .card-foot {
+        padding: 14px 24px;
+        background: var(--surface2);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .card-total {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--gold);
+      }
+      .card-time {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      /* Status badge */
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+      }
+      .status-badge.confirmed {
+        background: rgba(52, 211, 153, 0.1);
+        color: #34d399;
+        border: 1px solid rgba(52, 211, 153, 0.25);
+      }
+      /* Stats row */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px 24px;
+      }
+      .stat-card .num {
+        font-family: "Bebas Neue", cursive;
+        font-size: 36px;
+        color: var(--gold);
+        line-height: 1;
+      }
+      .stat-card .lbl {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+        letter-spacing: 0.5px;
+      }
+      /* Error */
+      .error-box {
+        background: #1a0808;
+        border: 1px solid var(--red);
+        border-radius: var(--radius);
+        padding: 16px 20px;
+        color: #ff8080;
+        font-size: 14px;
+        margin-bottom: 20px;
+        display: none;
+      }
+      /* Btn */
+      .btn-primary {
+        background: var(--gold);
+        color: #000;
+        font-family: "DM Sans", sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        padding: 12px 28px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s;
+      }
+      .btn-primary:hover {
+        background: #f7c94b;
+        transform: translateY(-1px);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted);
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        padding: 8px 16px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-ghost:hover {
+        border-color: var(--gold-dim);
+        color: var(--text);
+      }
+      @media (max-width: 600px) {
+        header {
+          padding: 0 20px;
+        }
+        .main {
+          padding: 32px 16px;
+        }
+        .card-body {
+          grid-template-columns: 1fr 1fr;
+        }
+        .card-field:not(:last-child):not(:nth-child(2n)) {
+          border-right: 1px solid var(--border);
+        }
+        .card-field:nth-child(3n) {
+          border-right: none;
+        }
+        .stats-row {
+          grid-template-columns: 1fr;
+        }
+        nav a span {
+          display: none;
+        }
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">CINE<span>MAX</span></div>
+      <nav>
+        <a href="movie_booking.html">Now Showing</a>
+        <a href="my_bookings.html" class="active">My Bookings</a>
+        <span id="nav-user"></span>
+      </nav>
+    </header>
+
+    <div class="main">
+      <div class="page-header">
+        <h1>My Bookings</h1>
+        <div class="user-chip">
+          👤 <strong id="display-email">Loading…</strong>
+        </div>
+      </div>
+
+      <div class="error-box" id="error-box"></div>
+
+      <!-- Stats -->
+      <div class="stats-row" id="stats-row" style="display: none">
+        <div class="stat-card">
+          <div class="num" id="stat-total">0</div>
+          <div class="lbl">Total Bookings</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="stat-seats">0</div>
+          <div class="lbl">Seats Booked</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="stat-spent">₹0</div>
+          <div class="lbl">Total Spent</div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div id="content">
+        <div class="loading-box">
+          <div class="loader"></div>
+          <p>Fetching your bookings from Google Sheets…</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const APPS_SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbzV6hUnG90p8hb72Q4p8V-pVVetNHF2Ok55C_WTyYr25m4yobszxPtIw7EnoSFOUYuz1A/exec";
+
+      // ── Auth check ──
+      const session = JSON.parse(
+        sessionStorage.getItem("cinemaUser") || "null",
+      );
+      if (!session) {
+        window.location.href = "login.html";
+      }
+
+      const email = session.email;
+      document.getElementById("display-email").textContent = email;
+
+      // Nav
+      const navUser = document.getElementById("nav-user");
+      navUser.innerHTML = `<span style="color:var(--muted);font-size:13px;margin:0 8px">👤 ${session.name || email}</span><a href="#" onclick="logout()" style="color:var(--red);font-size:13px">Logout</a>`;
+
+      function logout() {
+        sessionStorage.removeItem("cinemaUser");
+        window.location.href = "login.html";
+      }
+
+      // ── Fetch bookings ──
+      async function loadBookings() {
+        try {
+          const res = await fetch(
+            `${APPS_SCRIPT_URL}?action=getMyBookings&email=${encodeURIComponent(email)}`,
+          );
+          const data = await res.json();
+
+          if (data.status !== "success")
+            throw new Error(data.message || "Failed to fetch bookings.");
+
+          const bookings = data.bookings || [];
+          renderBookings(bookings);
+        } catch (e) {
+          document.getElementById("content").innerHTML = "";
+          const eb = document.getElementById("error-box");
+          eb.textContent = "Could not load bookings: " + e.message;
+          eb.style.display = "block";
+          // Show empty state anyway
+          renderBookings([]);
+        }
+      }
+
+      function renderBookings(bookings) {
+        const content = document.getElementById("content");
+
+        if (bookings.length === 0) {
+          content.innerHTML = `
+            <div class="empty-box">
+              <span class="empty-icon">🎟️</span>
+              <h3>No Bookings Yet</h3>
+              <p>You haven't booked any tickets yet. Pick a movie and grab your seats!</p>
+              <a href="movie_booking.html" class="btn-primary">Browse Movies</a>
+            </div>`;
+          return;
+        }
+
+        // Stats
+        const totalSeats = bookings.reduce(
+          (s, b) => s + (parseInt(b["Seat Count"]) || 0),
+          0,
+        );
+        const totalSpent = bookings.reduce(
+          (s, b) => s + (parseFloat(b["Total Paid (₹)"]) || 0),
+          0,
+        );
+        document.getElementById("stat-total").textContent = bookings.length;
+        document.getElementById("stat-seats").textContent = totalSeats;
+        document.getElementById("stat-spent").textContent =
+          "₹" + totalSpent.toLocaleString("en-IN");
+        document.getElementById("stats-row").style.display = "grid";
+
+        // Sort newest first (by Timestamp col)
+        const sorted = [...bookings].reverse();
+
+        content.innerHTML = `<div class="bookings-list">${sorted.map((b) => bookingCard(b)).join("")}</div>`;
+      }
+
+      function bookingCard(b) {
+        const movie = b["Movie"] || "—";
+        const bookId = b["Booking ID"] || "—";
+        const date = b["Date"] || "—";
+        const showtime = b["Showtime"] || "—";
+        const seats = b["Seats"] || "—";
+        const seatCnt = b["Seat Count"] || "—";
+        const payment = b["Payment Method"] || "—";
+        const total = b["Total Paid (₹)"]
+          ? "₹" + parseFloat(b["Total Paid (₹)"]).toLocaleString("en-IN")
+          : "—";
+        const genre = b["Genre"] || "";
+        const ts = b["Timestamp"] || "";
+
+        return `
+          <div class="booking-card">
+            <div class="card-top">
+              <div>
+                <div class="card-movie">${movie}</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:2px">${genre}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+                <div class="card-id">${bookId}</div>
+                <div class="status-badge confirmed">● Confirmed</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-field"><label>Date</label><span>${date}</span></div>
+              <div class="card-field"><label>Showtime</label><span>${showtime}</span></div>
+              <div class="card-field"><label>Payment</label><span>${payment}</span></div>
+              <div class="card-field" style="grid-column:1/-1"><label>Seats (${seatCnt})</label><span style="letter-spacing:.5px;font-family:monospace;font-size:13px">${seats}</span></div>
+            </div>
+            <div class="card-foot">
+              <span class="card-total">${total}</span>
+              <span class="card-time">${ts}</span>
+            </div>
+          </div>`;
+      }
+
+      loadBookings();
+    </script>
+  </body>
+</html>
